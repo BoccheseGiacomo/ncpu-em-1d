@@ -5,6 +5,10 @@ NCPU-EM-1D is a one-dimensional **neural cellular automaton (NCA)**, inspired by
 [*Emergent Models: Intelligence from Tiny Substrates*](https://arxiv.org/abs/2608.14019).
 It is an active experimental part of the ongoing NCPU work.
 
+The [browser demo](https://bocchesegiacomo.github.io/ncpu-em-1d-demo/)
+([source](https://github.com/BoccheseGiacomo/ncpu-em-1d-demo)) runs a saved
+mutable-program model and displays every state channel over time.
+
 It learns to transform binary strings: reverse them, copy them, negate
 their bits, or perform other sequence operations. A small neural network acts
 on neighboring cells of a one-dimensional tape. Repeated application of this
@@ -140,8 +144,10 @@ The Python package is named `ncpu_computer_1d`. Run notebook cells in order:
    `outputs/output.gif`.
 5. **Programs:** inspect the learned task programs.
 
-The supplied setup uses reverse, copy, and both zero-filling shifts,
-with **2,000 optimizer updates** and **1,000 examples per final test and task**.
+The supplied notebook trains reverse, copy, both zero-filled shifts, Gray
+encoding, prefix XOR, and increment together, with **7,000 optimizer updates**
+and **1,000 examples per final test and task**. Its current configuration uses
+a periodic read-only program; program placement and mutability remain editable.
 General hyperparameters are in the first cell; workflow controls are in their
 respective cells. Restart the kernel after changing the implementation.
 
@@ -154,7 +160,7 @@ Final tests use strings of **exactly the specified length**, including leading
 zeros. Their tape capacities and times are explicit; invalid cases raise errors
 rather than being truncated or resampled. Training and test times are independent:
 the supplied training uses four free steps per slot, while the fixed final cases
-use three.
+also use four.
 
 `EVALUATION_MAX_EXAMPLES = 1000` selects a reproducible uniform subset without
 replacement, shared across tasks. `None` evaluates every string: a 21-bit case
@@ -171,6 +177,12 @@ multiple-output interpretation stops at two consecutive blanks.
 - **Symbol:** fraction of matching tape cells.
 - **Stable:** semantic correctness throughout the evaluation window.
 
+The intended halting condition is equilibrium: continued evolution should
+preserve the answer. Settling time can depend on the input and tape capacity.
+Training uses finite windows whose duration scales with tape capacity; it does
+not prove convergence as time tends to infinity. The implementation runs for
+the selected number of steps and has no automatic equilibrium detector.
+
 Final MSE and semantic/raw/symbol scores average over that window. Task aggregates
 are unweighted. Evaluation uses the in-memory model unless checkpoint loading
 is selected.
@@ -184,10 +196,10 @@ in the repository.
 
 ## Scope and checks
 
-Reversal extrapolation remains experimental. One 6,000-update multitask run
-achieved 77.79% semantic accuracy at input length 19 and 39.06% at length 21
-on 1,000 sampled inputs; copy and shifts were near 100%. These are single-run
-observations, not guaranteed results for the supplied 2,000-update setup.
+Reversal extrapolation remains experimental. The supplied notebook retains
+training and evaluation outputs from the latest main experiment. These report
+finite-window performance; they do not establish convergence or guarantee
+generalization to arbitrary input lengths.
 
 The project is self-contained: `src/` holds the implementation, `notebooks/`
 the workflow, `tests/` the regression tests, and `assets/` the README animation.
